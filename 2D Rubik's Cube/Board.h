@@ -6,7 +6,6 @@
 #include<numeric>
 #include<sstream>
 #include<string>
-#include<vector> // gar - ar - bage
 using namespace std;
 
 enum class Action { Up, Right, Down, Left };
@@ -16,9 +15,7 @@ class Board {
 public:
     pair<int, int> agent;
     array<array<int, 4>, 4> board;
-    list<Action> path;
-
-    Board& operator=(const Board& rhs) = default;
+    list<Action> path; // nodes instead or list
 
     Board(pair<int, int> _agent = { 0, 0 }, array<array<int, 4>, 4> _board = {}, list<Action> _path = {}) : agent({ _agent.second, _agent.first }), board(_board), path(_path) {
         if (board.front().front() == board.back().back()) {
@@ -53,7 +50,7 @@ public:
         swap(board[a / 4][a % 4], board[b / 4][b % 4]);
     }
 
-    Board move(Action action) {
+    Board& move(Action action) {
         Board copy = *this;
         copy.path.push_back(action);
         int temp;

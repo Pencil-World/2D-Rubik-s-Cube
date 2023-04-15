@@ -27,5 +27,6 @@
   <ItemGroup>
     <Text Include="tree.txt" />
     <Text Include="domains.txt" />
+    <Text Include="strategies.txt" />
   </ItemGroup>
 </Project>

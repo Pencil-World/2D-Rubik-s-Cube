@@ -21,29 +21,31 @@ void clear() {
 
 vector<Board>& GROW() {
     int lim, step, counter = 2;
-    lim = step = 100'000;
-    array<int, 50> domains{ 0, 1 };
+    lim = step = 1'000'000;
+    array<double, 50> domains{ 0, 1 };
     vector<Board> tree = { Board() };
 
     string temp;
     for (fstream file("domains.txt", ios::in); file >> temp; domains[counter] = stoi(temp), ++counter) {}
     for (fstream file("tree.txt", ios::in); getline(file, temp); tree.push_back(Board::decode(temp))) {}
+    if (tree.size() < domains[counter - 1]) --counter;
+    lim = tree.size() / step;
 
-    for (; counter < 50; domains[counter] = tree.size(), ++counter) {
-        for (int i = domains[counter - 2]; i < domains[counter - 1]; ++i) {
-            transform(begin(actions), end(actions), back_inserter(tree), [&tree, &i](Action action) { return tree[i].move(action); });
-            if (tree.size() > lim) {
-                tm date;
-                time_t now = time(0);
-                localtime_s(&date, &now);
-                cout << put_time(&date, "%c") << endl;
-                for_each(end(tree) - step, end(tree), [&lim, &step, file = fstream("tree.txt", ios::app)](Board& elem) mutable { file << elem.encode() << endl; });
-                lim += step;
-            }
-        }
+    //for (; counter < domains.size(); domains[counter] = tree.size(), ++counter) {
+    //    for (int i = domains[counter - 2]; i < domains[counter - 1]; ++i) {
+    //        transform(begin(actions), end(actions), back_inserter(tree), [&tree, &i](Action action) { return tree[i].move(action); });
+    //        if (tree.size() > lim) {
+    //            tm date;
+    //            time_t now = time(0);
+    //            localtime_s(&date, &now);
+    //            cout << counter - 1 << " " << tree.size() << " " << put_time(&date, "%c") << endl;
+    //            for_each(begin(tree) + (lim - step), begin(tree) + lim, [&lim, &step, file = fstream("tree.txt", ios::app)](Board& elem) mutable { file << elem.encode() << endl; });
+    //            lim += step;
+    //        }
+    //    }
 
-        { fstream("domains.txt", ios::app) << tree.size() << endl; }
-    }
+    //    { fstream("domains.txt", ios::app) << tree.size() << endl; }
+    //}
 
     sort(begin(tree), end(tree));
     tree.erase(unique(begin(tree), end(tree)), end(tree));
@@ -57,9 +59,9 @@ void SWAP(int a, int b, const vector<Board>& tree) {
             transform(begin(actions), end(actions), back_inserter(search), [&elem](Action action) { return elem.move(action); });
         search.erase(begin(search), begin(search) + lim);
         auto it = ranges::find_first_of(tree, search);
-        if (it == end(tree)) {
+        if (it != end(tree)) {
             cout << "SWAP successful" << endl;
-            fstream("strategies", ios::app) << it->history() + ranges::find(search, *it)->history(true) << endl;
+            fstream("strategies", ios::app) << it->history() << " " << ranges::find(search, *it)->history(true) << endl;
             return;
         }
     }
@@ -69,12 +71,12 @@ void SWAP(int a, int b, const vector<Board>& tree) {
 }
 
 int main() {
-    clear();
+    //clear();
     vector<Board> tree = GROW();
-    //SWAP(0, 1, tree);
-    //SWAP(0, 2, tree);
-    //SWAP(0, 5, tree);
-    //SWAP(0, 6, tree);
-    //SWAP(0, 10, tree);
+    SWAP(0, 1, tree);
+    SWAP(0, 2, tree);
+    SWAP(0, 5, tree);
+    SWAP(0, 6, tree);
+    SWAP(0, 10, tree);
     return 0;
 }
