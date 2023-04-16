@@ -35,23 +35,15 @@ void GROW(vector<Board*>& tree) {
     int step = 1'000'000, counter = 2;
     array<double, 5 + 2> domains{ 0, 1 };
 
-    //string temp;
-    //for (fstream file("domains.txt", ios::in); file >> temp; domains[counter] = stoi(temp), ++counter) {}
-    //for (fstream file("tree.txt", ios::in); getline(file, temp); tree.push_back(Board::decode(temp))) {}
-    //if (tree.size() < domains[counter - 1]) --counter;
-
     int lim = tree.size() / step + step;
     for (; counter < domains.size(); domains[counter] = tree.size(), ++counter) {
         for (int i = domains[counter - 2]; i < domains[counter - 1]; ++i) {
             transform(begin(actions), end(actions), back_inserter(tree), [&tree, i](Action action) { return tree[i]->move(action); });
             if (tree.size() > lim) {
                 print(counter - 1, tree.size());
-                //for_each(begin(tree) + (lim - step), begin(tree) + lim, [file = fstream("tree.txt", ios::app)](Board* obj) mutable { file << obj->encode() << endl; });
                 lim += step;
             }
         }
-
-        //{ fstream("domains.txt", ios::app) << tree.size() << endl; }
     }
 
     sort(begin(tree), end(tree), [](Board* a, Board* b) { return *a < *b; });
@@ -80,7 +72,7 @@ void SWAP(int a, int b, const vector<Board*>& tree) {
         }
     }
 
-    cout << "SWAP failed" << endl;
+    print("SWAP failed");
     system("pause");
 }
 

@@ -25,27 +25,6 @@ public:
         }
     }
 
-    static Board* decode(const string& json) {
-        stringstream stream(json);
-        Board* board = new Board();
-
-        stream >> board->agent.first >> board->agent.second;
-        generate(begin(board->board), end(board->board), [&stream]() { array<int, 4> n{}; stream >> n[0] >> n[1] >> n[2] >> n[3]; return n; });
-        for (int temp; stream >> temp; board->path.push_back(static_cast<Action>(temp))) {}
-        return board;
-    }
-
-    string encode() {
-        stringstream stream;
-        stream << agent.first << " " << agent.second;
-        for (auto& arr : board)
-            for (auto elem : arr)
-                stream << " " << elem;
-        for (auto elem : path)
-            stream << " " << static_cast<int>(elem);
-        return stream.str();
-    }
-
     void __swap__(int a, int b) {
         swap(board[a / 4][a % 4], board[b / 4][b % 4]);
     }
