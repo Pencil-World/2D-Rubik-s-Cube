@@ -17,9 +17,7 @@ public:
     array<array<int, 4>, 4> board;
     list<Action> path;
 
-    Board& operator=(const Board& rhs) = default;
-
-    Board(pair<int, int> _agent = { 0, 0 }, array<array<int, 4>, 4> _board = {}, list<Action> _path = {}) : agent({ _agent.second, _agent.first }), board(_board), path(_path) {
+    Board(const pair<int, int>& _agent = { 0, 0 }, const array<array<int, 4>, 4>& _board = {}, const list<Action>& _path = {}) : agent({ _agent.second, _agent.first }), board(_board), path(_path) {
         if (board.front().front() == board.back().back()) {
             generate(begin(board), end(board), [n = 0]() mutable { n += 4; return array<int, 4>({n - 4, n - 3, n - 2, n - 1}); });
             if (agent.first + agent.second != 0)
@@ -27,7 +25,7 @@ public:
         }
     }
 
-    static Board* decode(string json) {
+    static Board* decode(const string& json) {
         stringstream stream(json);
         Board* board = new Board();
 
@@ -53,22 +51,22 @@ public:
     }
 
     Board* move(Action action) {
-        pair<int, int> _agent;
+        pair<int, int> _agent = agent;
         array<array<int, 4>, 4> _board = board;
         list<Action> _path = path;
         _path.push_back(action);
         switch (action) {
             case Action::Up:
                 _agent.first = agent.first == 0 ? 3 : agent.first - 1;
-                _board[0][agent.second] = board[1][_agent.second], _board[1][_agent.second] = board[2][_agent.second], _board[2][_agent.second] = board[3][_agent.second], _board[3][_agent.second] = board[0][agent.second];
+                _board[0][agent.second] = board[1][agent.second], _board[1][agent.second] = board[2][agent.second], _board[2][agent.second] = board[3][agent.second], _board[3][agent.second] = board[0][agent.second];
                 break;
             case Action::Right:
                 _agent.second = agent.second == 3 ? 0 : agent.second + 1;
-                ranges::rotate(_board[_agent.first], end(_board[_agent.first]) - 1);
+                ranges::rotate(_board[agent.first], end(_board[agent.first]) - 1);
                 break;
             case Action::Down:
                 _agent.first = agent.first == 3 ? 0 : agent.first + 1;
-                _board[3][_agent.second] = board[2][_agent.second], _board[2][_agent.second] = board[1][_agent.second], _board[1][_agent.second] = board[0][_agent.second], _board[0][_agent.second] = board[3][_agent.second];
+                _board[3][agent.second] = board[2][agent.second], _board[2][agent.second] = board[1][agent.second], _board[1][agent.second] = board[0][agent.second], _board[0][agent.second] = board[3][agent.second];
                 break;
             case Action::Left:
                 _agent.second = agent.second == 0 ? 3 : agent.second - 1;
@@ -81,9 +79,9 @@ public:
 
     string history(bool reverse = false) const {
         if (!reverse)
-            return accumulate(begin(path), end(path), string(), [this](string total, Action elem) { return total + table.at(elem); });
+            return accumulate(begin(path), end(path), string(), [](string total, Action elem) { return total + table.at(elem) + " "; });
         const map<Action, Action> inverse{ { Action::Up, Action::Down }, { Action::Right, Action::Left }, { Action::Down, Action::Left }, { Action::Left, Action::Right } };
-        return accumulate(rbegin(path), rend(path), string(), [this, &inverse](string total, Action elem) { return total + table.at(inverse.at(elem)); });
+        return accumulate(rbegin(path), rend(path), string(), [&inverse](string total, Action elem) { return total + table.at(inverse.at(elem)) + " "; });
     }
 };
 

@@ -1,0 +1,3 @@
+Down Left Left Up Left Down Left Up Left 
+Up Right Right Down Left Left Left Down Left 
+Up Right Right Down Right Left Left Down Left Left Left Down Left 
