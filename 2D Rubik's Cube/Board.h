@@ -1,38 +1,39 @@
 #pragma once
 #include<algorithm>
 #include<array>
-#include<list>
 #include<map>
 #include<numeric>
+    using std::accumulate;
 #include<sstream>
 #include<string>
+#include<vector>
 using namespace std;
 
 enum class Action { Up, Right, Down, Left };
 const map<Action, string> table{ { Action::Up, "Up" }, { Action::Right, "Right" }, { Action::Down, "Down" }, { Action::Left, "Left" } };
 
 class Board {
-public:
+private:
     pair<int, int> agent;
-    array<array<int, 4>, 4> board;
-    list<Action> path;
+    vector<Action> path;
 
-    Board(const pair<int, int>& _agent = { 0, 0 }, const array<array<int, 4>, 4>& _board = {}, const list<Action>& _path = {}) : agent({ _agent.second, _agent.first }), board(_board), path(_path) {
-        if (board.front().front() == board.back().back()) {
-            generate(begin(board), end(board), [n = 0]() mutable { n += 4; return array<int, 4>({n - 4, n - 3, n - 2, n - 1}); });
-            if (agent.first + agent.second != 0)
-                __swap__(0, 4 * agent.first + agent.second);
-        }
-    }
+    Board(pair<int, int>& _agent, array<array<int, 4>, 4>& _board, vector<Action>& _path) : agent(_agent), board(_board), path(_path) {}
 
     void __swap__(int a, int b) {
         swap(board[a / 4][a % 4], board[b / 4][b % 4]);
+    }
+public:
+    array<array<int, 4>, 4> board;
+
+    Board(int pos = 0) {
+        generate(begin(board), end(board), [n = 0]() mutable { n += 4; return array<int, 4>({ n - 4, n - 3, n - 2, n - 1 }); });
+        __swap__(0, pos);
     }
 
     Board* move(Action action) {
         pair<int, int> _agent = agent;
         array<array<int, 4>, 4> _board = board;
-        list<Action> _path = path;
+        vector<Action> _path = path;
         _path.push_back(action);
         switch (action) {
             case Action::Up:
@@ -65,7 +66,6 @@ public:
 };
 
 inline bool operator==(const Board& lhs, const Board& rhs) { return lhs.board == rhs.board; }
-inline bool operator<(const Board& lhs, const Board& rhs) { return lhs.board < rhs.board; }
 ostream& operator<<(ostream& os, const Board& obj) {
     for (auto& arr : obj.board) {
         for (auto& elem : arr)
