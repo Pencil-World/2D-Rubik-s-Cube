@@ -15,7 +15,9 @@ class Board {
 public:
     pair<int, int> agent;
     array<array<int, 4>, 4> board;
-    list<Action> path; // nodes instead or list
+    list<Action> path;
+
+    Board& operator=(const Board& rhs) = default;
 
     Board(pair<int, int> _agent = { 0, 0 }, array<array<int, 4>, 4> _board = {}, list<Action> _path = {}) : agent({ _agent.second, _agent.first }), board(_board), path(_path) {
         if (board.front().front() == board.back().back()) {
@@ -25,13 +27,13 @@ public:
         }
     }
 
-    static Board decode(string json) {
+    static Board* decode(string json) {
         stringstream stream(json);
-        Board board{};
+        Board* board = new Board();
 
-        stream >> board.agent.first >> board.agent.second;
-        generate(begin(board.board), end(board.board), [&stream]() { array<int, 4> n{}; stream >> n[0] >> n[1] >> n[2] >> n[3]; return n; });
-        for (int temp; stream >> temp; board.path.push_back(static_cast<Action>(temp))) {}
+        stream >> board->agent.first >> board->agent.second;
+        generate(begin(board->board), end(board->board), [&stream]() { array<int, 4> n{}; stream >> n[0] >> n[1] >> n[2] >> n[3]; return n; });
+        for (int temp; stream >> temp; board->path.push_back(static_cast<Action>(temp))) {}
         return board;
     }
 
@@ -50,34 +52,31 @@ public:
         swap(board[a / 4][a % 4], board[b / 4][b % 4]);
     }
 
-    Board& move(Action action) {
-        Board copy = *this;
-        copy.path.push_back(action);
-        int temp;
+    Board* move(Action action) {
+        pair<int, int> _agent;
+        array<array<int, 4>, 4> _board = board;
+        list<Action> _path = path;
+        _path.push_back(action);
         switch (action) {
             case Action::Up:
-                copy.agent.first = copy.agent.first == 0 ? 3 : copy.agent.first - 1;
-                temp = copy.board[0][copy.agent.second];
-                copy.board[0][copy.agent.second] = copy.board[1][copy.agent.second], copy.board[1][copy.agent.second] = copy.board[2][copy.agent.second], copy.board[2][copy.agent.second] = copy.board[3][copy.agent.second];
-                copy.board[3][copy.agent.second] = temp;
+                _agent.first = agent.first == 0 ? 3 : agent.first - 1;
+                _board[0][agent.second] = board[1][_agent.second], _board[1][_agent.second] = board[2][_agent.second], _board[2][_agent.second] = board[3][_agent.second], _board[3][_agent.second] = board[0][agent.second];
                 break;
             case Action::Right:
-                copy.agent.second = copy.agent.second == 3 ? 0 : copy.agent.second + 1;
-                ranges::rotate(copy.board[copy.agent.first], end(copy.board[copy.agent.first]) - 1);
+                _agent.second = agent.second == 3 ? 0 : agent.second + 1;
+                ranges::rotate(_board[_agent.first], end(_board[_agent.first]) - 1);
                 break;
             case Action::Down:
-                copy.agent.first = copy.agent.first == 3 ? 0 : copy.agent.first + 1;
-                temp = copy.board[3][copy.agent.second];
-                copy.board[3][copy.agent.second] = copy.board[2][copy.agent.second], copy.board[2][copy.agent.second] = copy.board[1][copy.agent.second], copy.board[1][copy.agent.second] = copy.board[0][copy.agent.second];
-                copy.board[0][copy.agent.second] = temp;
+                _agent.first = agent.first == 3 ? 0 : agent.first + 1;
+                _board[3][_agent.second] = board[2][_agent.second], _board[2][_agent.second] = board[1][_agent.second], _board[1][_agent.second] = board[0][_agent.second], _board[0][_agent.second] = board[3][_agent.second];
                 break;
             case Action::Left:
-                copy.agent.second = copy.agent.second == 0 ? 3 : copy.agent.second - 1;
-                ranges::rotate(copy.board[copy.agent.first], begin(copy.board[copy.agent.first]) + 1);
+                _agent.second = agent.second == 0 ? 3 : agent.second - 1;
+                ranges::rotate(_board[agent.first], begin(_board[agent.first]) + 1);
                 break;
         }
 
-        return copy;
+        return new Board(_agent, _board, _path);
     }
 
     string history(bool reverse = false) const {
