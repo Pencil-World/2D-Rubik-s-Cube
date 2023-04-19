@@ -27,16 +27,25 @@ void print(int depth, int breadth) {
 
 void GROW(vector<Board*>& tree) {
     print("GROW");
-    int step = 1'000'000, counter = 2;
+    int step = 100'000, counter = 2;
     array<int, 100 + 2> domains{ 0, 1 };
+
+    string temp1;
+    for (fstream file("domains.txt", ios::in); file >> temp1; domains[counter] = stoi(temp1), ++counter) {}
+    if (tree.size() < domains[counter - 1]) --counter;
+    
+    Board* temp2;
+    for (fstream file("tree.txt", ios::in); file >> temp2; tree.push_back(temp2)) {}
+
 
     int lim = tree.size() / step + step;
     for (; counter < domains.size(); domains[counter] = tree.size(), ++counter) {
         for (int i = domains[counter - 2]; i < domains[counter - 1]; ++i) {
             tree.reserve(4 * tree.size());
-            for_each(begin(actions), end(actions), [&tree, i](Action action) { Board* it = tree[i]->move(action); if (ranges::find_if(tree, [&it](Board* obj) { return *it == *obj; }) == end(tree)) tree.push_back(it); });
+            for_each(begin(actions), end(actions), [&tree, i](Action action) { Board* it = tree[i]->move(action); (ranges::find_if(tree, [&it](Board* obj) { return *it == *obj; }) == end(tree)) ? tree.push_back(it) : delete it; });
             if (tree.size() > lim) {
                 print(counter - 1, tree.size());
+                for_each(begin(tree) + (lim - step), begin(tree) + lim, [file = fstream("tree.txt", ios::app)](Board* obj) mutable { file << obj; });
                 lim += step;
             }
         }
@@ -52,7 +61,7 @@ void SWAP(int pos, const vector<Board*>& tree) {
     for (int counter = 0; counter < 12; ++counter) {
         auto it = ranges::find_first_of(tree, search, [](Board* a, Board* b) { return *a == *b; });
         if (it != end(tree)) {
-            cout << "SWAP successful" << endl << **it;
+            cout << "SWAP successful" << endl << (*it);
             fstream("strategies.txt", ios::app) << (*it)->history() << (*ranges::find_if(search, [it](Board* obj) { return **it == *obj; }))->history(true) << endl;
             return;
         }

@@ -136,7 +136,9 @@
     <ClInclude Include="Board.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="domains.txt" />
     <Text Include="strategies.txt" />
+    <Text Include="tree.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
