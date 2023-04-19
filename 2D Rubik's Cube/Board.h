@@ -1,11 +1,7 @@
 #pragma once
 #include<algorithm>
 #include<array>
-#include<cmath>
-    using std::pow;
 #include<map>
-#include<numeric>
-    using std::accumulate;
 #include<string>
 using namespace std;
 
@@ -26,7 +22,7 @@ public:
     Action edge;
     int path;
 
-    Board(int _path = -1, int pos = 0) : path(_path) {
+    Board(int pos = 0, int _path = -1) : path(_path) {
         generate(begin(board), end(board), [n = 0]() mutable { n += 4; return array<int, 4>({ n - 4, n - 3, n - 2, n - 1 }); });
         __swap__(0, pos);
     }
@@ -68,12 +64,12 @@ public:
     }
 
     string TraverseFrontToMiddle(vector<Board*>& tree) {
-        return table.at(edge) + (path == -1 ? " " + tree[path]->TraverseFrontToMiddle(tree) : "");
+        return (path == -1 ? tree[path]->TranverseFrontToMiddle(tree) + " " : "") + table.at(edge);
     }
 
     string TraverseBackToMiddle(vector<Board*>& tree) {
         const map<Action, Action> inverse{ { Action::Up, Action::Down }, { Action::Right, Action::Left }, { Action::Down, Action::Left }, { Action::Left, Action::Right } };
-        return (path == -1 ? tree[path]->TranverseBackToMiddle(tree) + " " : "") + table.at(inverse.at(edge));
+        return table.at(inverse.at(edge)) + (path == -1 ? " " + tree[path]->TraverseBackToMiddle(tree) : "");
     }
 };
 
