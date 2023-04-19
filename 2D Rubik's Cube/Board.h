@@ -10,7 +10,7 @@ const map<Action, string> table{ { Action::Up, "Up" }, { Action::Right, "Right" 
 
 class Board {
 private:
-    Board(pair<int, int>&& _agent, array<array<int, 4>, 4>&& _board, Action _edge, int _path) : agent(_agent), board(_board), edge(_edge), path(_path) {}
+    Board(pair<int, int>& _agent, array<array<int, 4>, 4>& _board, Action _edge, int _path) : agent(_agent), board(_board), edge(_edge), path(_path) {}
 
     void __swap__(int a, int b) {
         swap(board[a / 4][a % 4], board[b / 4][b % 4]);
@@ -63,11 +63,11 @@ public:
         return new Board(_agent, _board, action, parent);
     }
 
-    string TraverseFrontToMiddle(vector<Board*>& tree) {
-        return (path == -1 ? tree[path]->TranverseFrontToMiddle(tree) + " " : "") + table.at(edge);
+    string TraverseFrontToMiddle(const vector<Board*>& tree) {
+        return (path == -1 ? tree[path]->TraverseFrontToMiddle(tree) + " " : "") + table.at(edge);
     }
 
-    string TraverseBackToMiddle(vector<Board*>& tree) {
+    string TraverseBackToMiddle(const vector<Board*>& tree) {
         const map<Action, Action> inverse{ { Action::Up, Action::Down }, { Action::Right, Action::Left }, { Action::Down, Action::Left }, { Action::Left, Action::Right } };
         return table.at(inverse.at(edge)) + (path == -1 ? " " + tree[path]->TraverseBackToMiddle(tree) : "");
     }
@@ -83,8 +83,8 @@ ostream& operator<<(ostream& os, const Board*& obj) {
             os.put(elem + '0');
     }
 
-    os.put(obs->edge);
-    os << obs->path << '\n';
+    os.put(static_cast<char>(obj->edge));
+    os << obj->path << '\n';
     return os;
 }
 
@@ -96,7 +96,7 @@ istream& operator>>(istream& os, Board*& obj) {
             elem = os.get() - '0';
     }
 
-    os.get(obj->edge);
+    obj->edge = static_cast<Action>(os.get());
     os >> obj->path;
     return os;
 }
