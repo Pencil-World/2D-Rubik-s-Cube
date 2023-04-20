@@ -83,8 +83,9 @@ ostream& operator<<(ostream& os, Board*& obj) {
             os.put(elem + '0');
     }
 
-    os.put(static_cast<int>(obj->edge) + '0');
-    os << obj->path << '\n';
+    os.put(static_cast<char>(obj->edge));
+    os << obj->path;
+    os.put('\n');
     return os;
 }
 
@@ -96,9 +97,8 @@ istream& operator>>(istream& os, Board*& obj) {
             elem = os.get() - '0';
     }
 
-    char asdf = os.get();
-    int ho = asdf - '0';
-    obj->edge = static_cast<Action>(ho);
+    obj->edge = static_cast<Action>(os.get());
     os >> obj->path;
+    os.get();
     return os;
 }
