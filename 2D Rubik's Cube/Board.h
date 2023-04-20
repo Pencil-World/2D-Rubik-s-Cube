@@ -75,7 +75,7 @@ public:
 
 inline bool operator==(const Board& lhs, const Board& rhs) { return lhs.board == rhs.board; }
 
-ostream& operator<<(ostream& os, const Board*& obj) {
+ostream& operator<<(ostream& os, Board*& obj) {
     os.put(obj->agent.first + '0');
     os.put(obj->agent.second + '0');
     for (auto& arr : obj->board) {
@@ -83,7 +83,7 @@ ostream& operator<<(ostream& os, const Board*& obj) {
             os.put(elem + '0');
     }
 
-    os.put(static_cast<char>(obj->edge));
+    os.put(static_cast<int>(obj->edge) + '0');
     os << obj->path << '\n';
     return os;
 }
@@ -96,7 +96,9 @@ istream& operator>>(istream& os, Board*& obj) {
             elem = os.get() - '0';
     }
 
-    obj->edge = static_cast<Action>(os.get());
+    char asdf = os.get();
+    int ho = asdf - '0';
+    obj->edge = static_cast<Action>(ho);
     os >> obj->path;
     return os;
 }
