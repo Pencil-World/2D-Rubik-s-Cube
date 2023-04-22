@@ -6,7 +6,7 @@
 using namespace std;
 
 enum class Action { Up, Right, Down, Left };
-const map<Action, string> table{ { Action::Up, "Up" }, { Action::Right, "Right" }, { Action::Down, "Down" }, { Action::Left, "Left" } };
+const map<Action, Action> inverse{ { Action::Up, Action::Down }, { Action::Right, Action::Left }, { Action::Down, Action::Left }, { Action::Left, Action::Right } };
 
 class Board {
 private:
@@ -63,13 +63,23 @@ public:
         return new Board(_agent, _board, action, parent);
     }
 
-    string TraverseFrontToMiddle(const vector<Board*>& tree) {
-        return (path == -1 ? tree[path]->TraverseFrontToMiddle(tree) + " " : "") + table.at(edge);
+    string TraverseMiddleToFront(const vector<Board*>& tree) {
+        return to_string(static_cast<int>(inverse.at(edge))) + (path == -1 ? "" : tree[path]->TraverseMiddleToFront(tree));
     }
 
     string TraverseBackToMiddle(const vector<Board*>& tree) {
-        const map<Action, Action> inverse{ { Action::Up, Action::Down }, { Action::Right, Action::Left }, { Action::Down, Action::Left }, { Action::Left, Action::Right } };
-        return table.at(inverse.at(edge)) + (path == -1 ? " " + tree[path]->TraverseBackToMiddle(tree) : "");
+        return (path == -1 ? "" : tree[path]->TraverseBackToMiddle(tree)) + to_string(static_cast<int>(edge));
+    }
+
+    void Traverse(string strategy) {
+        Board* board = this;
+        for (char elem : strategy) {
+            cout << static_cast<string>(*board) << endl;
+            Action action = static_cast<Action>(elem - '0');
+            Board* temp = board->move(-1, action);
+            delete board;
+            board = temp;
+        }
     }
 };
 
